@@ -84,29 +84,38 @@ public class MediaSaveHelper {
                 MediaStore.Files.FileColumns.MEDIA_TYPE,
                 MediaStore.MediaColumns.MIME_TYPE,
                 MediaStore.MediaColumns.DISPLAY_NAME,
-                MediaStore.MediaColumns.DATE_ADDED
+                MediaStore.MediaColumns.DATE_ADDED,
+                MediaStore.MediaColumns.DATE_MODIFIED
         };
 
         String selection;
         String[] args;
         if (Build.VERSION.SDK_INT >= 29) {
+            String relativeDirWithSlash = RELATIVE_DIR + "/";
             selection = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? OR " +
-                    MediaStore.Files.FileColumns.MEDIA_TYPE + "=?) AND " +
-                    MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?";
+                    MediaStore.Files.FileColumns.MEDIA_TYPE + "=?) AND (" +
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=? OR " +
+                    MediaStore.MediaColumns.RELATIVE_PATH + "=? OR " +
+                    MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?)";
             args = new String[] {
                     String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
                     String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
-                    RELATIVE_DIR + "%"
+                    RELATIVE_DIR,
+                    relativeDirWithSlash,
+                    relativeDirWithSlash + "%"
             };
         } else {
             File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), DIR_NAME);
+            String dirPath = dir.getAbsolutePath();
             selection = "(" + MediaStore.Files.FileColumns.MEDIA_TYPE + "=? OR " +
-                    MediaStore.Files.FileColumns.MEDIA_TYPE + "=?) AND " +
-                    MediaStore.MediaColumns.DATA + " LIKE ?";
+                    MediaStore.Files.FileColumns.MEDIA_TYPE + "=?) AND (" +
+                    MediaStore.MediaColumns.DATA + "=? OR " +
+                    MediaStore.MediaColumns.DATA + " LIKE ?)";
             args = new String[] {
                     String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
                     String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO),
-                    dir.getAbsolutePath() + "%"
+                    dirPath,
+                    dirPath + File.separator + "%"
             };
         }
 
@@ -121,6 +130,7 @@ public class MediaSaveHelper {
             int mimeIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
             int nameIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
             int dateIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED);
+            int modifiedIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED);
             int count = 0;
             while (cursor.moveToNext() && (limit <= 0 || count < limit)) {
                 long id = cursor.getLong(idIndex);
@@ -128,6 +138,7 @@ public class MediaSaveHelper {
                 String mime = cursor.getString(mimeIndex);
                 String name = cursor.getString(nameIndex);
                 long date = cursor.getLong(dateIndex);
+                if (date <= 0) date = cursor.getLong(modifiedIndex);
                 Uri uri;
                 if (mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO) {
                     uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);

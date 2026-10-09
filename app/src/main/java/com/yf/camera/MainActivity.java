@@ -3,7 +3,6 @@ package com.yf.camera;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -11,8 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -23,14 +20,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
-import android.widget.EditText;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -67,9 +61,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -158,18 +149,12 @@ public class MainActivity extends AppCompatActivity {
         initCameraSounds();
 
         loadWatermarkSettingsFromPrefs();
-        loadManualTimeFromPrefs();
+        disableManualTimeOverride();
         loadLogoFromPrefs();
         updateLatestAlbumThumbnail();
 
-        // 水印图片更换入口已移动到设置页，避免拍摄页点击对焦时误触。
-        tvTimePreview.setOnClickListener(v -> showTimeOptionsDialog());
-        View.OnClickListener locationClickListener = v -> {
-            if (locationManager != null) locationManager.showLocationOptions();
-        };
-        locationTextArea.setOnClickListener(locationClickListener);
-        tvLocationPreview.setOnClickListener(locationClickListener);
-        tvCoordPreview.setOnClickListener(locationClickListener);
+        // 新版拍摄页只展示自动时间和自动定位，不再提供点击修改时间/定位入口。
+        disableWatermarkTextManualClick();
         btnAlbum.setOnClickListener(v -> startActivity(new Intent(this, AlbumActivity.class)));
         btnPhoto.setOnClickListener(v -> takePhoto());
         btnVideo.setOnClickListener(v -> toggleRecord());
@@ -197,6 +182,24 @@ public class MainActivity extends AppCompatActivity {
         timeTicker.start();
         locationManager = new YFLocationManager(this, mainHandler, watermarkData, this::updatePreviewWatermark);
         locationManager.start();
+    }
+
+    private void disableWatermarkTextManualClick() {
+        tvTimePreview.setOnClickListener(null);
+        tvTimePreview.setClickable(false);
+        tvTimePreview.setFocusable(false);
+
+        locationTextArea.setOnClickListener(null);
+        locationTextArea.setClickable(false);
+        locationTextArea.setFocusable(false);
+
+        tvLocationPreview.setOnClickListener(null);
+        tvLocationPreview.setClickable(false);
+        tvLocationPreview.setFocusable(false);
+
+        tvCoordPreview.setOnClickListener(null);
+        tvCoordPreview.setClickable(false);
+        tvCoordPreview.setFocusable(false);
     }
 
 
@@ -683,172 +686,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showTimeOptionsDialog() {
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
-
-        final Dialog dialog = new Dialog(this);
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        int padH = dp(22);
-        int padV = dp(18);
-        card.setPadding(padH, padV, padH, padV);
-
-        GradientDrawable cardBg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{Color.argb(246, 255, 255, 255), Color.argb(238, 242, 247, 252)});
-        cardBg.setCornerRadius(dp(24));
-        cardBg.setStroke(dp(1), Color.argb(180, 210, 222, 234));
-        card.setBackground(cardBg);
-
-        TextView title = new TextView(this);
-        title.setText("修改水印时间");
-        title.setTextColor(Color.rgb(38, 53, 72));
-        title.setTextSize(20);
-        title.setGravity(Gravity.START);
-        title.setTypeface(title.getTypeface(), android.graphics.Typeface.BOLD);
-        card.addView(title, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-        TextView desc = new TextView(this);
-        desc.setText("用于补拍历史项目照片。手动设置后，时间会固定；恢复当前时间后重新跟随系统时间。");
-        desc.setTextColor(Color.rgb(91, 110, 134));
-        desc.setTextSize(13);
-        desc.setLineSpacing(dp(3), 1f);
-        LinearLayout.LayoutParams descLp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        descLp.topMargin = dp(8);
-        card.addView(desc, descLp);
-
-        final EditText input = new EditText(this);
-        input.setSingleLine(true);
-        input.setText(watermarkData.getTimeLine());
-        input.setSelectAllOnFocus(true);
-        input.setHint("yyyy-MM-dd HH:mm:ss");
-        input.setTextColor(Color.rgb(38, 53, 72));
-        input.setHintTextColor(Color.argb(160, 91, 110, 134));
-        input.setTextSize(16);
-        input.setPadding(dp(14), 0, dp(14), 0);
-        GradientDrawable inputBg = new GradientDrawable();
-        inputBg.setColor(Color.argb(230, 255, 255, 255));
-        inputBg.setCornerRadius(dp(16));
-        inputBg.setStroke(dp(1), Color.argb(190, 200, 214, 229));
-        input.setBackground(inputBg);
-        LinearLayout.LayoutParams inputLp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(48));
-        inputLp.topMargin = dp(16);
-        card.addView(input, inputLp);
-
-        LinearLayout buttons = new LinearLayout(this);
-        buttons.setOrientation(LinearLayout.HORIZONTAL);
-        buttons.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams buttonsLp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        buttonsLp.topMargin = dp(18);
-        card.addView(buttons, buttonsLp);
-
-        Button restore = makeTimeDialogButton("恢复当前", false);
-        Button cancel = makeTimeDialogButton("取消", false);
-        Button save = makeTimeDialogButton("使用此时间", true);
-        LinearLayout.LayoutParams b1 = new LinearLayout.LayoutParams(0, dp(42), 1f);
-        LinearLayout.LayoutParams b2 = new LinearLayout.LayoutParams(0, dp(42), 0.75f);
-        b2.leftMargin = dp(8);
-        LinearLayout.LayoutParams b3 = new LinearLayout.LayoutParams(0, dp(42), 1.15f);
-        b3.leftMargin = dp(8);
-        buttons.addView(restore, b1);
-        buttons.addView(cancel, b2);
-        buttons.addView(save, b3);
-
-        restore.setOnClickListener(v -> {
-            watermarkData.manualTimeEnabled = false;
-            watermarkData.timeText = sdf.format(new Date());
-            saveManualTimeToPrefs(false, "");
-            updatePreviewWatermark();
-            Toast.makeText(this, "已恢复当前时间", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-        cancel.setOnClickListener(v -> dialog.dismiss());
-        save.setOnClickListener(v -> {
-            String value = input.getText() == null ? "" : input.getText().toString().trim();
-            if (!isValidTimeText(sdf, value)) {
-                Toast.makeText(this, "时间格式不正确，请按 yyyy-MM-dd HH:mm:ss 输入", Toast.LENGTH_LONG).show();
-                return;
-            }
-            watermarkData.manualTimeEnabled = true;
-            watermarkData.timeText = value;
-            saveManualTimeToPrefs(true, value);
-            updatePreviewWatermark();
-            Toast.makeText(this, "已使用手动时间", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
-
-        dialog.setContentView(card);
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        dialog.setOnShowListener(d -> {
-            Window w = dialog.getWindow();
-            if (w != null) {
-                w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                w.setLayout((int) (getResources().getDisplayMetrics().widthPixels * 0.90f),
-                        android.view.WindowManager.LayoutParams.WRAP_CONTENT);
-            }
-        });
-        dialog.show();
-    }
-
-    private Button makeTimeDialogButton(String text, boolean primary) {
-        Button button = new Button(this);
-        button.setText(text);
-        button.setAllCaps(false);
-        button.setTextSize(13);
-        button.setMinHeight(0);
-        button.setMinWidth(0);
-        button.setPadding(dp(4), 0, dp(4), 0);
-        button.setTextColor(primary ? Color.WHITE : Color.rgb(64, 90, 120));
-        GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(dp(18));
-        if (primary) {
-            bg.setColor(Color.rgb(64, 90, 120));
-        } else {
-            bg.setColor(Color.argb(210, 255, 255, 255));
-            bg.setStroke(dp(1), Color.argb(180, 200, 214, 229));
-        }
-        button.setBackground(bg);
-        return button;
-    }
-
-    private boolean isValidTimeText(SimpleDateFormat sdf, String value) {
-        if (value == null || value.length() == 0) return false;
-        try {
-            sdf.setLenient(false);
-            Date parsed = sdf.parse(value);
-            return parsed != null && value.equals(sdf.format(parsed));
-        } catch (ParseException e) {
-            return false;
-        }
-    }
-
     private void loadWatermarkSettingsFromPrefs() {
         originalSize = AppSettings.isOriginalSize(this);
         watermarkData.projectName = AppSettings.getProjectName(this);
         watermarkData.photographerName = AppSettings.getPhotographerName(this);
     }
 
-    private void loadManualTimeFromPrefs() {
-        SharedPreferences sp = AppSettings.prefs(this);
-        boolean enabled = sp.getBoolean(AppSettings.KEY_MANUAL_TIME_ENABLED, false);
-        String text = sp.getString(AppSettings.KEY_MANUAL_TIME_TEXT, "");
-        if (enabled && text != null && text.length() > 0) {
-            watermarkData.manualTimeEnabled = true;
-            watermarkData.timeText = text;
-        }
-    }
-
-    private void saveManualTimeToPrefs(boolean enabled, String text) {
+    private void disableManualTimeOverride() {
+        watermarkData.manualTimeEnabled = false;
         AppSettings.prefs(this)
                 .edit()
-                .putBoolean(AppSettings.KEY_MANUAL_TIME_ENABLED, enabled)
-                .putString(AppSettings.KEY_MANUAL_TIME_TEXT, text == null ? "" : text)
+                .remove(AppSettings.KEY_MANUAL_TIME_ENABLED)
+                .remove(AppSettings.KEY_MANUAL_TIME_TEXT)
                 .apply();
     }
 
@@ -953,9 +802,7 @@ public class MainActivity extends AppCompatActivity {
             ivLogo.setImageBitmap(bitmap);
             AppSettings.prefs(this).edit().putString(AppSettings.KEY_LOGO_URI, uri.toString()).apply();
             Toast.makeText(this, "水印图标已更换", Toast.LENGTH_SHORT).show();
-            return;
         }
-        if (locationManager != null) locationManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override protected void onResume() {

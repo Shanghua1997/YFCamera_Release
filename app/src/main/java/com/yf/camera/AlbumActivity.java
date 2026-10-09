@@ -53,11 +53,18 @@ public class AlbumActivity extends AppCompatActivity {
         btnDelete.setText("删除");
         btnDelete.setOnClickListener(v -> confirmDeleteSelected());
         btnShare.setOnClickListener(v -> showShareOptions());
-        loadMedia();
+        PermissionHelper.requestAlbumPermissions(this, this::loadMedia);
     }
 
     private void loadMedia() {
-        List<MediaItem> items = MediaSaveHelper.queryRecentMedia(this, 200);
+        if (!PermissionHelper.hasAlbumPermission(this)) {
+            adapter.setItems(new ArrayList<>());
+            if (tvAlbumTip != null) {
+                tvAlbumTip.setText("需要允许照片和视频读取权限，才能显示 DCIM/YFCamera 下的历史素材");
+            }
+            return;
+        }
+        List<MediaItem> items = MediaSaveHelper.queryRecentMedia(this, 0);
         adapter.setItems(items);
         updateNormalTip();
     }
@@ -116,17 +123,7 @@ public class AlbumActivity extends AppCompatActivity {
             Toast.makeText(this, "请先长按照片/视频进入多选，或先点选一个文件", Toast.LENGTH_SHORT).show();
             return;
         }
-        String[] options = new String[] { "预留分享通道（未来开发）", "微信分享给朋友" };
-        new AlertDialog.Builder(this)
-                .setTitle(selected.size() > 1 ? "批量分享 " + selected.size() + " 项" : "选择分享方式")
-                .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
-                        Toast.makeText(this, "这个分享通道先留空，后续开发", Toast.LENGTH_SHORT).show();
-                    } else {
-                        shareToWechat(selected);
-                    }
-                })
-                .show();
+        shareToWechat(selected);
     }
 
     private void confirmDeleteSelected() {
@@ -196,6 +193,6 @@ public class AlbumActivity extends AppCompatActivity {
 
     @Override protected void onResume() {
         super.onResume();
-        if (adapter != null) loadMedia();
+        if (adapter != null && PermissionHelper.hasAlbumPermission(this)) loadMedia();
     }
 }
