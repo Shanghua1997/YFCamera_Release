@@ -16,6 +16,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'AndroidCleanWorkspace'
+rootProject.name = 'YFCamera'
 include ':app'
 include ':locationlib'
