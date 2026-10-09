@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_page_light"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:background="@drawable/bg_top_bar"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_control_button"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="返回"
+            android:textAllCaps="false"
+            android:textColor="@color/yf_ink" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="永发 Camera 相册"
+            android:textColor="@color/yf_ink"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnMultiSelect"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_control_button"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="删除"
+            android:textAllCaps="false"
+            android:textColor="@color/yf_ink" />
+
+        <Button
+            android:id="@+id/btnShare"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_control_button"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="分享"
+            android:textAllCaps="false"
+            android:textColor="@color/yf_ink" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAlbumTip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:text="点击缩略图进入查看；长按进入多选；选中后可批量分享或删除"
+        android:textColor="@color/yf_ink_soft"
+        android:textSize="13sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:padding="4dp" />
+</LinearLayout>

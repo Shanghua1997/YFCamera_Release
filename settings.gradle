@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // 高德官方 Maven 仓库。高德 SDK 只在 locationlib 中声明，app 不再直接声明。
+        maven { url 'https://maven.autonavi.com/repository/amap/' }
+    }
+}
+
+rootProject.name = 'AndroidCleanWorkspace'
+include ':app'
+include ':locationlib'

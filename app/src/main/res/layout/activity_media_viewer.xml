@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:fitsSystemWindows="true">
+
+    <ImageView
+        android:id="@+id/ivFullImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:background="#000000"
+        android:scaleType="fitCenter" />
+
+    <VideoView
+        android:id="@+id/vvFullVideo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_gravity="top"
+        android:background="#88000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
+
+        <Button
+            android:id="@+id/btnViewerBack"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_control_button"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="返回"
+            android:textAllCaps="false"
+            android:textColor="@color/yf_ink" />
+
+        <TextView
+            android:id="@+id/tvViewerTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="middle"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="照片"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnViewerShare"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_control_button"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="分享"
+            android:textAllCaps="false"
+            android:textColor="@color/yf_ink" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/videoControlsPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#AA000000"
+        android:orientation="vertical"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="14dp"
+        android:visibility="gone">
+
+        <SeekBar
+            android:id="@+id/seekVideo"
+            android:layout_width="match_parent"
+            android:layout_height="36dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnVideoPlayPause"
+                android:layout_width="64dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_control_button"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:text="暂停"
+                android:textAllCaps="false"
+                android:textColor="@color/yf_ink" />
+
+            <TextView
+                android:id="@+id/tvVideoTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="00:00 / 00:00"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnVideoScreenshot"
+                android:layout_width="64dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_control_button"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:text="截图"
+                android:textAllCaps="false"
+                android:textColor="@color/yf_ink" />
+
+            <Button
+                android:id="@+id/btnVideoRotate"
+                android:layout_width="64dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_control_button"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:text="横屏"
+                android:textAllCaps="false"
+                android:textColor="@color/yf_ink" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

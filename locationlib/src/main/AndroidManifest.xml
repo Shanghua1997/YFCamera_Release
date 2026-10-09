@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- L 只声明自己内部需要暴露给宿主使用的选点页面；高德 Key 由最终 App 声明。 -->
+        <activity
+            android:name=".ui.SelectLocationActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+    </application>
+</manifest>

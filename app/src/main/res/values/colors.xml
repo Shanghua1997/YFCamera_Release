@@ -1,0 +1,8 @@
+<resources>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="yf_ink">#263548</color>
+    <color name="yf_ink_soft">#5B6E86</color>
+    <color name="yf_blue">#405A78</color>
+    <color name="yf_page">#F5F8FC</color>
+</resources>
